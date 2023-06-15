@@ -1,92 +1,75 @@
 import asyncHandler from "express-async-handler";
-import Jobs from "../models/jobs.js";
+import { Jobs , Application } from "../models/jobs.js";
 import User from "../models/user.js";
 
 export const getJobs = asyncHandler(async (req, res) => {
-  const jobs = await Jobs.find({});
-
-  res.status(200).json({ jobs });
+  const userId = req.user.id;
+  const jobs = await Jobs.find({ userId: userId });
+  res.status(200).json({ success: true, data: jobs });
 });
 
 export const getSingleJob = asyncHandler(async (req, res) => {
-
-  const job = await Jobs.findById(req.body.jobId);
-
+  const { jobId } = req.body;
+  const job = await Jobs.findById(jobId);
   if (!job) {
-    res.status(401);
+    res.status(400);
     throw new Error("Job not found");
   }
-
-  res.status(201).json({"data": job});
+  res.status(200).json({ success: true, data: job });
 });
 
 export const createJob = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.body.userId);
+  const {userId} = req.body;
+  const user = await User.findById(userId);
   if (!user.isEmployer) {
-    res.status(401);
-    throw new Error("Can not Create Jobs");
+    res.status(400);
+    throw new Error("Can not create Jobs.");
   }
-
-    const job = await Jobs.create(req.body);
-    res.status(201).json(job);
-  
+  await Jobs.create(req.body);
+  res.status(200).json({ success: true, message: "Job successfully created." });
 });
 
 export const updateJob = asyncHandler(async (req, res) => {
-  const { jobId } = req.params;
-
-  try {
-    let job = await Jobs.findById(jobId);
-
-    if (!job) {
-      res.status(401);
-      throw new Error("Job not found");
-    }
-
-    job = await Jobs.findByIdAndUpdate(jobId, req.body, { new: true });
-
-    res.status(201).json(job);
-  } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
+  const {jobId} = req.body;
+  let job = await Jobs.findById(jobId);
+  if (!job) {
+    res.status(404);
+    throw new Error("Job not found.");
   }
+  job = await Jobs.findByIdAndUpdate(jobId, req.body, { new: true });
+  res.status(200).json(job);
 });
 
 export const deleteJob = asyncHandler(async (req, res) => {
-  const { jobId } = req.params;
-
+  const jobId = req.body.jobId;
   const job = await Jobs.findById(jobId);
-
   if (!job) {
-    res.status(404).json({ message: "Job not found" });
-    return;
+    res.status(404);
+    throw new Error("Job not found.");
   }
-
   await Jobs.findByIdAndDelete(jobId);
-
-  res.status(200).json({ message: "Job successfully deleted" });
+  res.status(200).json({ success: true, message: "Job successfully deleted." });
 });
-
 
 export const applyJob = asyncHandler(async (req, res) => {
-  const { jobId } = req.params;
-  const userId = req.user.id;
-
-  const jobExist = await Job.findById(jobId);
-
-  if (!jobExist) {
-    res.status(404).json({ message: "Job not found" });
-    return;
+  const { jobId, userId } = req.body;
+  const job = await Jobs.findOne({ _id: jobId });
+  if (!job) {
+    res.status(404);
+    throw new Error("Job not found.");
   }
-
   const checkApply = await Application.find({ userId, jobId });
-
   if (checkApply.length > 0) {
-    res.status(401).json({ message: "Already Applied" });
+    res.status(400).json({ success: false, message: "Already Applied" });
     return;
   }
-
-  const app = await Application.create({ userId, jobId });
-
-  res.status(201).json(app);
+  await Application.create(req.body);
+  await Jobs.findByIdAndUpdate(
+    jobId,
+    { $push: { applicants: userId } },
+    { new: true }
+  );
+  res
+    .status(200)
+    .json({ success: true, message: "Successfully applied for the job." });
 });
-

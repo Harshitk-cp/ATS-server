@@ -5,46 +5,33 @@ import User from "../models/user.js";
 
 export const register = asyncHandler(async (req, res) => {
   const { email, name, password } = req.body;
-  console.log(req.body);
-
-  const emailExists = await User.findOne({ email: email });
-
+  const emailExists = await User.exists({ email: email });
   if (emailExists) {
-    res.status(401);
+    res.status(400);
     throw new Error("Email already exist");
   }
-
-  const hashPassword = bcrypt.hashSync(password, 8);
-
+  const hashPassword = await bcrypt.hashSync(password, 8);
   const user = new User({
     name: name,
     email: email,
     password: hashPassword,
   });
-
-  try {
-    const savedUser = await user.save();
-    res.send(savedUser);
-  } catch (err) {
-    res.status(400).send(err);
-  }
+  await user.save();
+  res.send({ success: true, message: "User successfully created." });
 });
 
-// @Desc Login User
-// @Route /api/user/login
-// @Method POST
 export const login = asyncHandler(async (req, res) => {
-  const user = await User.findOne({ email: req.body.email });
-
+  const { email, password } = req.body;
+  const user = await User.findOne({ email: email });
   if (!user) {
-    res.status(401);
+    res.status(400);
     throw new Error("User not found");
   }
 
-  const passwordMatching = bcrypt.compareSync(password, user.password);
+  const passwordMatching = await bcrypt.compareSync(password, user.password);
 
-  if (user && !passwordMatching) {
-    res.status(401);
+  if (!passwordMatching) {
+    res.status(400);
     throw new Error("Password incorrect");
   }
 
@@ -57,5 +44,5 @@ export const login = asyncHandler(async (req, res) => {
     token: generateToken(user.id),
   };
 
-  res.status(201).json(userLogin);
+  res.status(200).json(userLogin);
 });

@@ -4,21 +4,21 @@ const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    min: 6,
-    max: 255,
+    min: 1,
+    max: 100,
   },
   email: {
     type: String,
     required: true,
     unique: true,
     min: 6,
-    max: 255,
+    max: 100,
   },
 
   password: {
     type: String,
     required: true,
-    max: 2048,
+    max: 10,
     min: 6,
   },
 
@@ -26,6 +26,11 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     required: true,
     default: true,
+  },
+
+  resume: {
+    type: String,
+    required: true,
   },
 });
 

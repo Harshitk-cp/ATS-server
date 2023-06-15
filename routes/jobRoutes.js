@@ -11,7 +11,7 @@ import { protect } from "../middlewares/auth.js";
 
 const router = express.Router();
 
-router.route("/").get(getJobs).post(protect, createJob);
+router.route("/").get(protect, getJobs).post(protect, createJob);
 router
   .route("/:jobId")
   .get(getSingleJob)
