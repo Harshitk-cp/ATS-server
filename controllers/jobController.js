@@ -1,6 +1,24 @@
 import asyncHandler from "express-async-handler";
 import { Jobs , Application } from "../models/jobs.js";
 import User from "../models/user.js";
+import transporter from "../service/email.js";
+
+const sendEmail = async (toEmail, subject, text) => {
+  const mailOptions = {
+    from: "selena23@ethereal.email",
+    to: toEmail,
+    subject: subject,
+    text: text,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log("Email sent successfully");
+  } catch (error) {
+    console.error("Error sending email:", error);
+  }
+};
+
 
 export const getJobs = asyncHandler(async (req, res) => {
   const userId = req.user.id;
@@ -37,7 +55,7 @@ export const updateJob = asyncHandler(async (req, res) => {
     throw new Error("Job not found.");
   }
   job = await Jobs.findByIdAndUpdate(jobId, req.body, { new: true });
-  res.status(200).json(job);
+  res.status(200).json({ success: true, message: "Job status updated." });
 });
 
 export const deleteJob = asyncHandler(async (req, res) => {
@@ -72,4 +90,40 @@ export const applyJob = asyncHandler(async (req, res) => {
   res
     .status(200)
     .json({ success: true, message: "Successfully applied for the job." });
+});
+
+export const updateApplication = asyncHandler(async (req, res) => {
+  const {applicationId, action} = req.body;
+  const application = await Application.findById(applicationId);
+  const user = await User.findById(application.userId);
+  const job = await Jobs.findById(application.jobId);
+  console.log(user)
+  if (!application) {
+    res.status(404);
+    throw new Error("Application not found.");
+  }
+
+  const emailSubject = "Application Status Update";
+  let emailText = '';
+  let status = '';
+  let currentRound = application.currentRound;
+  if (action == "reject") {
+    emailText = "Sorry to inform you! Your application has been rejected.";
+    status = "rejected";
+  } else if(action != "reject" && currentRound != job.noOfRounds){
+    emailText = "Congratulations! Your application has been selected for the next round.";
+    status = "Ongoing";
+    currentRound++;
+    
+  }else{
+      emailText = "Congratulations! You are hired.";
+    status = "Hired";
+    currentRound++;
+
+    }
+  
+  sendEmail("harshitk.cp@gmail.com", emailSubject, emailText);
+  
+  await Application.findByIdAndUpdate(applicationId, {status: status, currentRound: currentRound}, { new: true });
+  res.status(200).json({ success: true, message: "Application status updated." });
 });

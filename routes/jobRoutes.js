@@ -6,6 +6,7 @@ import {
   updateJob,
   deleteJob,
   applyJob,
+  updateApplication
 } from "../controllers/jobController.js";
 import { protect } from "../middlewares/auth.js";
 
@@ -18,5 +19,5 @@ router
   .put(protect, updateJob)
   .delete(protect, deleteJob);
 router.route("/:jobId/apply").post(protect, applyJob);
-
+router.route("/:applicationId/update").post(protect, updateApplication)
 export default router;

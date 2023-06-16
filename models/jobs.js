@@ -36,6 +36,7 @@ const jobSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
+  isActive: Boolean,
   createdAt: { type: Date, default: Date.now, alias: "created_at" },
   updatedAt: { type: Date, default: Date.now, alias: "updated_at" },
 });
