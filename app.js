@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import { notFound, errorHandler } from "./middlewares/error.js";
 import userRoutes from "./routes/userRoutes.js";
 import jobRoutes from "./routes/jobRoutes.js";
+import cors from "cors";
 
 dotenv.config();
 
@@ -18,6 +19,8 @@ mongoose
   .catch((error) => console.log(error));
 
 app.use(express.json());
+
+app.use(cors());
 
 // User Route
 app.use("/api/v1/users", userRoutes);

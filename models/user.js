@@ -15,6 +15,11 @@ const userSchema = new mongoose.Schema({
     max: 100,
   },
 
+  phone: {
+    type: Number,
+    max: 10,
+  },
+
   password: {
     type: String,
     required: true,
@@ -30,7 +35,11 @@ const userSchema = new mongoose.Schema({
 
   resume: {
     type: String,
-    required: true,
+  },
+
+  bio: {
+    type: String,
+    min: 100,
   },
 });
 

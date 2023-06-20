@@ -3,7 +3,12 @@ import User from "../models/user.js";
 const { Schema } = mongoose;
 
 const applicationSchema = new mongoose.Schema({
-  userId: {
+  hrId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
+  applicantId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
@@ -30,13 +35,17 @@ const jobSchema = new mongoose.Schema({
   education: String,
   experience: String,
   noOfRounds: Number,
-  status: String,
+  jobType: String,
   applicants: [Schema.Types.ObjectId],
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
-  isActive: Boolean,
+  isActive: {
+    type: Boolean,
+    default: true,
+  },
+  deadline: { type: Date, default: Date.now, alias: "dealine" },
   createdAt: { type: Date, default: Date.now, alias: "created_at" },
   updatedAt: { type: Date, default: Date.now, alias: "updated_at" },
 });

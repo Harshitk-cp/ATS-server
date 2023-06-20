@@ -1,5 +1,5 @@
 import asyncHandler from "express-async-handler";
-import { Jobs , Application } from "../models/jobs.js";
+import { Jobs, Application } from "../models/jobs.js";
 import User from "../models/user.js";
 import transporter from "../service/email.js";
 
@@ -19,10 +19,14 @@ const sendEmail = async (toEmail, subject, text) => {
   }
 };
 
-
-export const getJobs = asyncHandler(async (req, res) => {
+export const getJobsForHr = asyncHandler(async (req, res) => {
   const userId = req.user.id;
   const jobs = await Jobs.find({ userId: userId });
+  res.status(200).json({ success: true, data: jobs });
+});
+
+export const getAllJobs = asyncHandler(async (req, res) => {
+  const jobs = await Jobs.find();
   res.status(200).json({ success: true, data: jobs });
 });
 
@@ -37,7 +41,7 @@ export const getSingleJob = asyncHandler(async (req, res) => {
 });
 
 export const createJob = asyncHandler(async (req, res) => {
-  const {userId} = req.body;
+  const { userId } = req.body;
   const user = await User.findById(userId);
   if (!user.isEmployer) {
     res.status(400);
@@ -48,7 +52,7 @@ export const createJob = asyncHandler(async (req, res) => {
 });
 
 export const updateJob = asyncHandler(async (req, res) => {
-  const {jobId} = req.body;
+  const { jobId } = req.body;
   let job = await Jobs.findById(jobId);
   if (!job) {
     res.status(404);
@@ -59,7 +63,7 @@ export const updateJob = asyncHandler(async (req, res) => {
 });
 
 export const deleteJob = asyncHandler(async (req, res) => {
-  const jobId = req.body.jobId;
+  const jobId = req.params.jobId;
   const job = await Jobs.findById(jobId);
   if (!job) {
     res.status(404);
@@ -70,13 +74,13 @@ export const deleteJob = asyncHandler(async (req, res) => {
 });
 
 export const applyJob = asyncHandler(async (req, res) => {
-  const { jobId, userId } = req.body;
+  const { jobId, applicantId, hrId } = req.body;
   const job = await Jobs.findOne({ _id: jobId });
   if (!job) {
     res.status(404);
     throw new Error("Job not found.");
   }
-  const checkApply = await Application.find({ userId, jobId });
+  const checkApply = await Application.find({ applicantId, jobId });
   if (checkApply.length > 0) {
     res.status(400).json({ success: false, message: "Already Applied" });
     return;
@@ -84,7 +88,7 @@ export const applyJob = asyncHandler(async (req, res) => {
   await Application.create(req.body);
   await Jobs.findByIdAndUpdate(
     jobId,
-    { $push: { applicants: userId } },
+    { $push: { applicants: applicantId } },
     { new: true }
   );
   res
@@ -93,37 +97,54 @@ export const applyJob = asyncHandler(async (req, res) => {
 });
 
 export const updateApplication = asyncHandler(async (req, res) => {
-  const {applicationId, action} = req.body;
+  const { applicationId, action } = req.body;
   const application = await Application.findById(applicationId);
   const user = await User.findById(application.userId);
   const job = await Jobs.findById(application.jobId);
-  console.log(user)
+  console.log(user);
   if (!application) {
     res.status(404);
     throw new Error("Application not found.");
   }
 
   const emailSubject = "Application Status Update";
-  let emailText = '';
-  let status = '';
+  let emailText = "";
+  let status = "";
   let currentRound = application.currentRound;
   if (action == "reject") {
     emailText = "Sorry to inform you! Your application has been rejected.";
     status = "rejected";
-  } else if(action != "reject" && currentRound != job.noOfRounds){
-    emailText = "Congratulations! Your application has been selected for the next round.";
+  } else if (action != "reject" && currentRound != job.noOfRounds) {
+    emailText =
+      "Congratulations! Your application has been selected for the next round.";
     status = "Ongoing";
     currentRound++;
-    
-  }else{
-      emailText = "Congratulations! You are hired.";
+  } else {
+    emailText = "Congratulations! You are hired.";
     status = "Hired";
     currentRound++;
+  }
 
-    }
-  
-  sendEmail("harshitk.cp@gmail.com", emailSubject, emailText);
-  
-  await Application.findByIdAndUpdate(applicationId, {status: status, currentRound: currentRound}, { new: true });
-  res.status(200).json({ success: true, message: "Application status updated." });
+  sendEmail("", emailSubject, emailText);
+
+  await Application.findByIdAndUpdate(
+    applicationId,
+    { status: status, currentRound: currentRound },
+    { new: true }
+  );
+  res
+    .status(200)
+    .json({ success: true, message: "Application status updated." });
+});
+
+export const getApplicationsForHr = asyncHandler(async (req, res) => {
+  const userId = req.params.userId;
+  const applications = await Application.find({ hrId: userId });
+  res.status(200).json({ success: true, data: applications });
+});
+
+export const getApplicationsForApplicant = asyncHandler(async (req, res) => {
+  const userId = req.params.userId;
+  const applications = await Application.find({ applicantId: userId });
+  res.status(200).json({ success: true, data: applications });
 });

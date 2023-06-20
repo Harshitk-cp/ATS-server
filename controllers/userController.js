@@ -44,5 +44,9 @@ export const login = asyncHandler(async (req, res) => {
     token: generateToken(user.id),
   };
 
-  res.status(200).json(userLogin);
+  res.status(200).json({
+    success: true,
+    message: "User successfully Loggedin.",
+    user: userLogin,
+  });
 });
