@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import { notFound, errorHandler } from "./middlewares/error.js";
 import userRoutes from "./routes/userRoutes.js";
 import jobRoutes from "./routes/jobRoutes.js";
+import applicationReviewRoutes from "./routes/applicationReviewRoutes.js";
 import cors from "cors";
 
 dotenv.config();
@@ -27,6 +28,9 @@ app.use("/api/v1/users", userRoutes);
 
 // Job Route
 app.use("/api/v1/jobs", jobRoutes);
+
+//review Route
+app.use("/api/v1/review", applicationReviewRoutes);
 
 // Error Middleware
 app.use(notFound);

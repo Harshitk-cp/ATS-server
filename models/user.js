@@ -17,7 +17,6 @@ const userSchema = new mongoose.Schema({
 
   phone: {
     type: Number,
-    max: 10,
   },
 
   password: {
@@ -34,13 +33,15 @@ const userSchema = new mongoose.Schema({
   },
 
   resume: {
-    type: String,
+    type: Buffer,
   },
 
   bio: {
     type: String,
     min: 100,
   },
+
+  dob: String,
 });
 
 export default mongoose.model("User", userSchema);

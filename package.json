@@ -11,17 +11,24 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "ai": "^2.1.8",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.1.4",
     "express": "^4.18.2",
     "express-async-handler": "^1.2.0",
+    "formidable": "^3.4.0",
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.2.2",
-    "nodemailer": "^6.9.3"
+    "nodemailer": "^6.9.3",
+    "open": "^9.1.0",
+    "openai": "^3.3.0",
+    "pdf-parse": "^1.1.1",
+    "pdfjs-dist": "^3.7.107",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "nodemon": "^2.0.22",
+    "nodemon": "^1.14.9",
     "prettier": "2.8.8"
   }
 }
