@@ -32,6 +32,10 @@ app.use("/api/v1/jobs", jobRoutes);
 //review Route
 app.use("/api/v1/review", applicationReviewRoutes);
 
+app.use("/api/v1/", (req, res) => {
+  res.send({ text: "Server Running" });
+});
+
 // Error Middleware
 app.use(notFound);
 app.use(errorHandler);

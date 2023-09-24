@@ -36,8 +36,6 @@ export const getReview = asyncHandler(async (req, res) => {
     const text = content.items.map((item) => item.str).join(" ");
     textContent += text;
   }
-
-  console.log(description);
   try {
     const result = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",

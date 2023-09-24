@@ -21,11 +21,9 @@
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.2.2",
     "nodemailer": "^6.9.3",
-    "open": "^9.1.0",
     "openai": "^3.3.0",
     "pdf-parse": "^1.1.1",
-    "pdfjs-dist": "^3.7.107",
-    "uuid": "^9.0.0"
+    "pdfjs-dist": "^3.7.107"
   },
   "devDependencies": {
     "nodemon": "^1.14.9",
